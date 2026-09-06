@@ -1,5 +1,5 @@
 const STATIC_HOSTED=true;
-const APP_VERSION='10.35.0';
+const APP_VERSION='10.36.0';
 const NAV=[
   ['home','Inicio','⌂'],['songs','Canciones','♫'],['setlists','Setlists','≡'],['metro','Metrónomo','●'],['live','Directo','▶'],['pdf','PDF','▤']
 ];
@@ -551,7 +551,7 @@ function liveBarsCount(value){
 function liveSongTotalBars(song){return (song?.guide||[]).reduce((n,g)=>n+liveBarsCount(g.bars),0)}
 function ensureLiveTransport(song){
  const id=song?.id||null,t=state.liveTransport;
- if(!t||t.songId!==id){state.liveTransport={songId:id,countInBars:4,phase:'idle',songBar:0,totalBars:liveSongTotalBars(song),plannedCountIn:0,audibleCountIn:0,plannedSongBars:0,paused:false,runToken:0,bpm:clampMetroBpm(song?.bpm||100)};}
+ if(!t||t.songId!==id){state.liveTransport={songId:id,countInBars:4,phase:'idle',songBar:0,totalBars:liveSongTotalBars(song),plannedCountIn:0,audibleCountIn:0,plannedSongBars:0,paused:false,lastVisualSection:null,runToken:0,bpm:clampMetroBpm(song?.bpm||100)};}
  else {t.totalBars=liveSongTotalBars(song);if(!Number.isFinite(+t.bpm))t.bpm=clampMetroBpm(song?.bpm||100);}
 
  return state.liveTransport;
@@ -571,9 +571,17 @@ function updateLiveTransportUI(song,scroll=true){
  if(status)status.textContent=t.phase==='countin'?`ENTRADA · ${Math.max(1,t.countInBars-t.audibleCountIn+1)}`:t.paused?'PAUSA':t.phase==='done'?'FIN':t.songBar>0?'EN CURSO':'LISTO';
  if(overlay){if(t.phase==='countin'){overlay.classList.add('show');overlay.innerHTML=`<strong>ENTRADA</strong><span>${Math.max(1,t.countInBars-t.audibleCountIn+1)}</span>`}else overlay.classList.remove('show')}
  $$('.live-block').forEach((el,i)=>el.classList.toggle('is-current',!!sec&&t.phase==='song'&&i===sec.index));
+ // Vista 7: contador, sección activa y posición visual usan exactamente el mismo índice.
+ // getBoundingClientRect evita el error de offsetTop cuando .live-block y .live-guide
+ // tienen offsetParents distintos (especialmente en tablet/fullscreen).
  if(scroll&&state.liveLayout===7&&sec&&t.phase==='song'){
    const el=document.querySelector(`.live-block[data-guide-index="${sec.index}"]`),scroller=document.querySelector('.live-layout-7 .live-guide');
-   if(el&&scroller){const target=Math.max(0,el.offsetTop-scroller.clientHeight*.26);scroller.scrollTo({top:target,behavior:'smooth'});}
+   if(el&&scroller&&t.lastVisualSection!==sec.index){
+     const er=el.getBoundingClientRect(),sr=scroller.getBoundingClientRect();
+     const target=Math.max(0,scroller.scrollTop+(er.top-sr.top)-8);
+     scroller.scrollTo({top:target,behavior:'smooth'});
+     t.lastVisualSection=sec.index;
+   }
  }
  const b=$('#liveMetro');if(b)b.textContent=state.metro.running?'■ Pausar click':(t.paused&&t.songBar>0?'▶ Continuar click':'▶ Iniciar click');
 }
@@ -785,11 +793,11 @@ function renderLive(){
  $('#liveBpmPlus').onclick=()=>applyLiveBpm(lt.bpm+1);
  $('#liveBpmInput').onchange=e=>applyLiveBpm(e.target.value);
  $('#liveBpmReset').onclick=()=>applyLiveBpm(song.bpm||100);
- $('#liveResetTransport').onclick=()=>{state.metro.running=false;clearTimeout(state.metro.timer);state.metro.timer=null;lt.phase='idle';lt.songBar=0;lt.plannedCountIn=0;lt.audibleCountIn=0;lt.plannedSongBars=0;lt.paused=false;lt.runToken++;state.metro.currentBeat=0;document.querySelector('.live-guide')?.scrollTo({top:0,behavior:'smooth'});updateLiveTransportUI(song,false)};
+ $('#liveResetTransport').onclick=()=>{state.metro.running=false;clearTimeout(state.metro.timer);state.metro.timer=null;lt.phase='idle';lt.songBar=0;lt.plannedCountIn=0;lt.audibleCountIn=0;lt.plannedSongBars=0;lt.paused=false;lt.lastVisualSection=null;lt.runToken++;state.metro.currentBeat=0;document.querySelector('.live-guide')?.scrollTo({top:0,behavior:'smooth'});updateLiveTransportUI(song,false)};
  $('#liveMetro').onclick=async()=>{state.liveSongId=song.id;
    const m=state.metro;m.meter=song.meter||4;m.denominator=song.denominator||4;m.subdivision=song.subdivision||1;m.bpm=clampMetroBpm(lt.bpm||song.bpm||100);
    if(m.running){m.running=false;clearTimeout(m.timer);m.timer=null;lt.paused=true;lt.runToken++;lt.plannedSongBars=lt.songBar;lt.plannedCountIn=Math.min(lt.countInBars,lt.audibleCountIn);updateLiveTransportUI(song,false);return;}
-   if(lt.phase==='done'){lt.phase='idle';lt.songBar=0;lt.plannedCountIn=0;lt.audibleCountIn=0;lt.plannedSongBars=0;lt.paused=false;}
+   if(lt.phase==='done'){lt.phase='idle';lt.songBar=0;lt.plannedCountIn=0;lt.audibleCountIn=0;lt.plannedSongBars=0;lt.paused=false;lt.lastVisualSection=null;}
    try{const ctx=await ensureAudioReady();m.running=true;m.currentBeat=0;m.nextNoteTime=ctx.currentTime+.08;lt.paused=false;lt.runToken++;if(lt.songBar===0){lt.phase='idle';lt.plannedCountIn=0;lt.audibleCountIn=0;lt.plannedSongBars=0}else{lt.phase='song';lt.plannedSongBars=lt.songBar;lt.plannedCountIn=lt.countInBars;lt.audibleCountIn=lt.countInBars}scheduler();updateLiveTransportUI(song,false)}catch(e){console.error(e);toast('No se pudo activar el click')}
  };
  $('#wakeBtn').onclick=async()=>{try{if('wakeLock'in navigator){await navigator.wakeLock.request('screen');toast('Pantalla mantenida activa')}else toast('Este navegador no permite bloquear el apagado de pantalla')}catch{toast('No se pudo mantener la pantalla activa')}};

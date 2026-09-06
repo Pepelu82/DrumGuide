@@ -1,3 +1,3 @@
-DrumGuide v10.35.0
-Base: v10.33 funcional + mejoras v10.34/v10.35.
+DrumGuide v10.36.0
+Base: v10.33 funcional + mejoras v10.34/v10.36.
 Publicación recomendada: GitHub Pages.

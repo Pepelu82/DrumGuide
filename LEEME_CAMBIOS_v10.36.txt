@@ -1,0 +1,8 @@
+DrumGuide v10.36.0
+
+- Corregida la sincronización de Vista 7 · Guion vertical.
+- El contador de compás, la sección activa, el resaltado y el desplazamiento visual usan la misma posición.
+- Corregido el cálculo de scroll en tablet/fullscreen: ya no usa offsetTop entre contenedores distintos.
+- El guion se desplaza al cambiar de sección, evitando saltos innecesarios en cada compás.
+- Pausa/reanudación conserva la sección visual activa.
+- Inicio reinicia también la referencia visual.
