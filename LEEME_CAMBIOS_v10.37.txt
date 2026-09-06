@@ -1,0 +1,8 @@
+DrumGuide v10.37.0
+
+- Recuperación robusta del audio en Android/Samsung.
+- El AudioContext se reanuda o recrea si queda suspendido/interrumpido.
+- MP3 vuelve a enlazarse al contexto activo al pulsar Play.
+- Metrónomo/click mantiene motor independiente de la canción.
+- Se conservan las correcciones de sincronización de Directo de v10.36.
+- Caché/PWA incrementada a v10.37 para evitar mezclar archivos de versiones anteriores.

@@ -1,5 +1,5 @@
 const STATIC_HOSTED=true;
-const APP_VERSION='10.36.0';
+const APP_VERSION='10.37.0';
 const NAV=[
   ['home','Inicio','⌂'],['songs','Canciones','♫'],['setlists','Setlists','≡'],['metro','Metrónomo','●'],['live','Directo','▶'],['pdf','PDF','▤']
 ];
@@ -527,12 +527,18 @@ function ensureAudio(){
  return state.metro.audio;
 }
 async function ensureAudioReady(){
- const ctx=ensureAudio();
- if(ctx.state==='suspended')await ctx.resume();
- // En algunos Android/Samsung la primera reproducción necesita una activación explícita dentro del gesto del usuario.
- if(ctx.state==='running'){
-   const g=ctx.createGain();g.gain.value=.00001;const o=ctx.createOscillator();o.frequency.value=80;o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+.01);
+ let ctx=ensureAudio();
+ // Android/Samsung puede dejar un AudioContext en suspended/interrupted después de cambiar de vista.
+ // Intentamos reanudarlo y, si no vuelve realmente a running, lo recreamos dentro del gesto del usuario.
+ try{if(ctx.state!=='running'&&ctx.resume)await ctx.resume()}catch(e){console.warn('Audio resume',e)}
+ if(ctx.state!=='running'){
+   try{if(ctx.close&&ctx.state!=='closed')await ctx.close()}catch{}
+   state.metro.audio=null;ctx=ensureAudio();
+   try{if(ctx.state!=='running'&&ctx.resume)await ctx.resume()}catch(e){console.warn('Audio resume 2',e)}
  }
+ if(ctx.state!=='running')throw new Error('AudioContext no activo: '+ctx.state);
+ // Pulso de desbloqueo inaudible. Se ejecuta desde Play/Iniciar click y fuerza la ruta de audio multimedia.
+ const g=ctx.createGain();g.gain.setValueAtTime(.00001,ctx.currentTime);const o=ctx.createOscillator();o.frequency.value=80;o.connect(g).connect(ctx.destination);o.start(ctx.currentTime);o.stop(ctx.currentTime+.015);
  return ctx;
 }
 function playTick(accent=false,when=null){
@@ -906,7 +912,7 @@ async function renderTranscriptionPlayer(song,mediaId,hostId='transcribePlayer')
   const position=()=>p.playing?Math.min(p.buffer.duration,p.startOffset+(p.ctx.currentTime-p.contextStart)*p.rate):p.offset;
   const draw=()=>{const pos=position();currentEl.textContent=fmt(pos);if(document.activeElement!==seekEl)seekEl.value=String(pos)};
   const stopSource=()=>{if(p.source){try{p.ignoreEnded=true;p.source.stop()}catch{}try{p.source.disconnect()}catch{}try{p.gain?.disconnect()}catch{}p.source=null;p.gain=null;p.ignoreEnded=false}};
-  const startAt=async off=>{off=Math.max(0,Math.min(p.buffer.duration-.001,off||0));await ensureAudioReady();if(p.ctx.state!=='running')await p.ctx.resume();stopSource();const src=p.ctx.createBufferSource();src.buffer=p.buffer;src.playbackRate.value=p.rate;const gain=p.ctx.createGain();gain.gain.value=1;src.connect(gain).connect(p.ctx.destination);p.source=src;p.gain=gain;p.startOffset=off;p.offset=off;p.contextStart=p.ctx.currentTime;p.playing=true;src.onended=()=>{if(p.source!==src)return;if(position()>=p.buffer.duration-.08){p.playing=false;p.offset=0;p.source=null;p.gain=null;draw();stateEl.textContent='Reproducción finalizada'} };src.start(0,off);stateEl.textContent='▶ Reproduciendo';draw()};
+  const startAt=async off=>{off=Math.max(0,Math.min(p.buffer.duration-.001,off||0));const readyCtx=await ensureAudioReady();if(p.ctx!==readyCtx){p.ctx=readyCtx}if(p.ctx.state!=='running')await p.ctx.resume();stopSource();const src=p.ctx.createBufferSource();src.buffer=p.buffer;src.playbackRate.value=p.rate;const gain=p.ctx.createGain();gain.gain.value=1;src.connect(gain).connect(p.ctx.destination);p.source=src;p.gain=gain;p.startOffset=off;p.offset=off;p.contextStart=p.ctx.currentTime;p.playing=true;src.onended=()=>{if(p.source!==src)return;if(position()>=p.buffer.duration-.08){p.playing=false;p.offset=0;p.source=null;p.gain=null;draw();stateEl.textContent='Reproducción finalizada'} };src.start(0,off);stateEl.textContent='▶ Reproduciendo';draw()};
   const pause=()=>{if(!p.playing)return;p.offset=position();p.playing=false;stopSource();stateEl.textContent='⏸ En pausa';draw()};
   const seekTo=async value=>{const was=p.playing;if(was)pause();p.offset=Math.max(0,Math.min(p.buffer.duration,Number(value)||0));draw();if(was&&p.offset<p.buffer.duration)await startAt(p.offset)};
   $('#mediaPlay').onclick=async()=>{try{if(!p.playing)await startAt(p.offset>=p.buffer.duration?0:p.offset)}catch(err){console.error('MP3 PLAY',err);stateEl.textContent='No se pudo iniciar el audio';toast('No se pudo iniciar el MP3')}};
