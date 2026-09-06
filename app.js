@@ -1,5 +1,5 @@
 const STATIC_HOSTED=true;
-const APP_VERSION='10.33.0';
+const APP_VERSION='10.35.0';
 const NAV=[
   ['home','Inicio','⌂'],['songs','Canciones','♫'],['setlists','Setlists','≡'],['metro','Metrónomo','●'],['live','Directo','▶'],['pdf','PDF','▤']
 ];
@@ -169,7 +169,7 @@ function renderHome(){
    <button class="card" data-home="songs" style="text-align:left"><strong>♫ Crear guía</strong><p class="muted">Añade una canción y estructura su batería por secciones.</p></button>
    <button class="card" data-home="setlists" style="text-align:left"><strong>≡ Preparar setlist</strong><p class="muted">Ordena canciones y calcula la duración total.</p></button>
    <button class="card" data-home="live" style="text-align:left"><strong>▶ Abrir modo directo</strong><p class="muted">Guía grande, BPM y navegación canción a canción.</p></button>
-   <a class="card update-card" href="https://neocities.org/dashboard" target="_blank" rel="noopener"><strong>⬆ Actualizar versión</strong><p class="muted">Abre el panel de Neocities para sustituir los archivos de DrumGuide. No subas el ZIP: descomprímelo y sube los archivos.</p></a>
+   <a class="card update-card" href="https://github.com/Pepelu82/DrumGuide" target="_blank" rel="noopener"><strong>⬆ Proyecto y actualizaciones</strong><p class="muted">DrumGuide está publicado con GitHub Pages. Los cambios del repositorio se publican automáticamente.</p></a>
  </div>
  <div class="section-head"><h2>Últimas canciones</h2><button class="btn ghost small" data-page2="songs">Ver todas</button></div>
  <div class="list">${state.db.songs.slice(-5).reverse().map(songRow).join('')||'<div class="empty">Todavía no hay canciones.</div>'}</div>`;
@@ -551,8 +551,9 @@ function liveBarsCount(value){
 function liveSongTotalBars(song){return (song?.guide||[]).reduce((n,g)=>n+liveBarsCount(g.bars),0)}
 function ensureLiveTransport(song){
  const id=song?.id||null,t=state.liveTransport;
- if(!t||t.songId!==id){state.liveTransport={songId:id,countInBars:4,phase:'idle',songBar:0,totalBars:liveSongTotalBars(song),scheduledDownbeats:0,paused:false};}
- else t.totalBars=liveSongTotalBars(song);
+ if(!t||t.songId!==id){state.liveTransport={songId:id,countInBars:4,phase:'idle',songBar:0,totalBars:liveSongTotalBars(song),plannedCountIn:0,audibleCountIn:0,plannedSongBars:0,paused:false,runToken:0,bpm:clampMetroBpm(song?.bpm||100)};}
+ else {t.totalBars=liveSongTotalBars(song);if(!Number.isFinite(+t.bpm))t.bpm=clampMetroBpm(song?.bpm||100);}
+
  return state.liveTransport;
 }
 function liveSectionForBar(song,bar){
@@ -567,8 +568,8 @@ function updateLiveTransportUI(song,scroll=true){
  if(remain)remain.textContent=t.phase==='countin'?`${total}`:`${Math.max(0,total-(t.songBar||0))}`;
  const sec=liveSectionForBar(song,t.songBar||1);
  if(section)section.textContent=t.phase==='countin'?'Preparado':sec?`${song.guide[sec.index]?.name||'Sección'} · ${Math.max(1,sec.local)} / ${Math.max(1,sec.bars)}`:'Sin secciones';
- if(status)status.textContent=t.phase==='countin'?`ENTRADA · ${Math.max(1,t.countInBars-t.scheduledDownbeats+1)}`:t.paused?'PAUSA':t.phase==='done'?'FIN':t.songBar>0?'EN CURSO':'LISTO';
- if(overlay){if(t.phase==='countin'){overlay.classList.add('show');overlay.innerHTML=`<strong>ENTRADA</strong><span>${Math.max(1,t.countInBars-t.scheduledDownbeats+1)}</span>`}else overlay.classList.remove('show')}
+ if(status)status.textContent=t.phase==='countin'?`ENTRADA · ${Math.max(1,t.countInBars-t.audibleCountIn+1)}`:t.paused?'PAUSA':t.phase==='done'?'FIN':t.songBar>0?'EN CURSO':'LISTO';
+ if(overlay){if(t.phase==='countin'){overlay.classList.add('show');overlay.innerHTML=`<strong>ENTRADA</strong><span>${Math.max(1,t.countInBars-t.audibleCountIn+1)}</span>`}else overlay.classList.remove('show')}
  $$('.live-block').forEach((el,i)=>el.classList.toggle('is-current',!!sec&&t.phase==='song'&&i===sec.index));
  if(scroll&&state.liveLayout===7&&sec&&t.phase==='song'){
    const el=document.querySelector(`.live-block[data-guide-index="${sec.index}"]`),scroller=document.querySelector('.live-layout-7 .live-guide');
@@ -578,19 +579,28 @@ function updateLiveTransportUI(song,scroll=true){
 }
 function scheduleLiveDownbeat(song,when){
  const t=ensureLiveTransport(song),ctx=state.metro.audio;if(!ctx)return;
- if(t.phase==='idle'){t.phase=(t.songBar>0)?'song':(t.countInBars>0?'countin':'song');t.scheduledDownbeats=0;}
- if(t.phase==='countin'){
-   t.scheduledDownbeats++;
-   const shown=t.scheduledDownbeats;
-   setTimeout(()=>{if(state.page==='live'){const o=$('#liveCountInOverlay');if(o){o.classList.add('show');o.innerHTML=`<strong>ENTRADA</strong><span>${Math.max(1,t.countInBars-shown+1)}</span>`}const st=$('#liveTransportStatus');if(st)st.textContent=`ENTRADA · ${Math.max(1,t.countInBars-shown+1)}`;}},Math.max(0,(when-ctx.currentTime)*1000));
-   if(t.scheduledDownbeats>=t.countInBars){t.phase='song';t.scheduledDownbeats=0;}
+ const token=t.runToken;
+ // Decide what this downbeat represents WITHOUT advancing visible state early.
+ if(t.songBar===0&&t.plannedCountIn<t.countInBars){
+   const planned=++t.plannedCountIn;
+   setTimeout(()=>{
+     if(token!==t.runToken||!state.metro.running||state.liveSongId!==song.id)return;
+     t.phase='countin';t.audibleCountIn=planned;
+     updateLiveTransportUI(song,false);
+   },Math.max(0,(when-ctx.currentTime)*1000));
    return;
  }
- if(t.phase==='song'){
-   if(t.songBar>=t.totalBars){t.phase='done';state.metro.running=false;clearTimeout(state.metro.timer);state.metro.timer=null;setTimeout(()=>updateLiveTransportUI(song,true),Math.max(0,(when-ctx.currentTime)*1000));return;}
-   t.songBar++;
-   setTimeout(()=>updateLiveTransportUI(song,true),Math.max(0,(when-ctx.currentTime)*1000));
- }
+ if(t.plannedSongBars>=t.totalBars)return;
+ const plannedBar=++t.plannedSongBars;
+ setTimeout(()=>{
+   if(token!==t.runToken||!state.metro.running||state.liveSongId!==song.id)return;
+   t.phase='song';t.songBar=plannedBar;t.audibleCountIn=t.countInBars;
+   updateLiveTransportUI(song,true);
+   if(t.songBar>=t.totalBars){
+     t.phase='done';state.metro.running=false;clearTimeout(state.metro.timer);state.metro.timer=null;t.runToken++;
+     updateLiveTransportUI(song,true);
+   }
+ },Math.max(0,(when-ctx.currentTime)*1000));
 }
 function scheduler(){const m=state.metro,ctx=m.audio;if(!m.running||!ctx)return;while(m.nextNoteTime<ctx.currentTime+.1&&m.running){const subIndex=m.currentBeat%(m.meter*m.subdivision);if(subIndex===0&&state.page==='live'&&state.liveSongId){const song=state.db.songs.find(s=>s.id===state.liveSongId);if(song)scheduleLiveDownbeat(song,m.nextNoteTime)}playTick(m.accent&&subIndex===0,m.nextNoteTime);m.currentBeat++;m.nextNoteTime+=60/m.bpm/m.subdivision}if(m.running)m.timer=setTimeout(scheduler,25)}
 function updateSongMetroButtons(){
@@ -740,7 +750,7 @@ function renderLive(){
    <div class="live-top">
      <div class="live-title-wrap"><div class="live-position">${state.liveIndex+1} / ${sl.songIds.length} · ${esc(sl.name)}</div><h2>${esc(song.title)}</h2><div class="artist">${esc(song.artist||'')}</div></div>
      <div class="live-actions">
-       <div class="live-quick"><strong>${song.bpm}</strong><span>BPM</span></div>
+       <div class="live-bpm-live"><button type="button" class="btn ghost live-bpm-step" id="liveBpmMinus">−</button><label><input id="liveBpmInput" type="number" min="30" max="300" value="${ensureLiveTransport(song).bpm}"><span>BPM</span></label><button type="button" class="btn ghost live-bpm-step" id="liveBpmPlus">+</button><button type="button" class="btn ghost live-bpm-reset" id="liveBpmReset" title="Volver al BPM guardado">↺ ${song.bpm}</button></div>
        <div class="live-quick"><strong>${signature(song)}</strong><span>COMPÁS</span></div>
        <div class="live-quick"><strong>${minsToText(song.duration)}</strong><span>DURACIÓN</span></div>
        <label class="live-layout-control"><span>VISTA</span><select id="liveLayoutSel" class="select"><option value="1" ${state.liveLayout===1?'selected':''}>1 · Actual</option><option value="2" ${state.liveLayout===2?'selected':''}>2 · 2 filas</option><option value="3" ${state.liveLayout===3?'selected':''}>3 · Filas anchas</option><option value="4" ${state.liveLayout===4?'selected':''}>4 · Tarjetas 2×N</option><option value="5" ${state.liveLayout===5?'selected':''}>5 · Línea de tiempo</option><option value="6" ${state.liveLayout===6?'selected':''}>6 · Parte protagonista</option><option value="7" ${state.liveLayout===7?'selected':''}>7 · Guion vertical</option><option value="8" ${state.liveLayout===8?'selected':''}>8 · Mosaico inteligente</option></select></label>
@@ -769,12 +779,18 @@ function renderLive(){
  $('#nextSong').onclick=()=>{stopTranscriptionMedia();state.metro.running=false;clearTimeout(state.metro.timer);state.liveSongId=null;state.liveIndex++;const x=state.db.songs.find(s=>s.id===sl.songIds[state.liveIndex]);if(x)loadSongTempo(x);renderLive()};
  $('#liveLayoutSel').onchange=e=>{const next=Math.max(1,Math.min(8,Number(e.target.value)||1));state.liveLayout=next;localStorage.setItem('drumguide_live_layout',String(next));const live=document.querySelector('.live');if(live){live.classList.remove('live-layout-1','live-layout-2','live-layout-3','live-layout-4','live-layout-5','live-layout-6','live-layout-7','live-layout-8');live.classList.add(`live-layout-${next}`);requestAnimationFrame(()=>requestAnimationFrame(fitLiveBlocks))}};
  state.liveSongId=song.id;const lt=ensureLiveTransport(song);updateLiveTransportUI(song,false);
- $('#liveCountInSel').onchange=e=>{lt.countInBars=Math.max(0,Number(e.target.value)||0);if(!state.metro.running&&lt.songBar===0){lt.phase='idle';lt.scheduledDownbeats=0;updateLiveTransportUI(song,false)}};
- $('#liveResetTransport').onclick=()=>{state.metro.running=false;clearTimeout(state.metro.timer);state.metro.timer=null;lt.phase='idle';lt.songBar=0;lt.scheduledDownbeats=0;lt.paused=false;state.metro.currentBeat=0;document.querySelector('.live-guide')?.scrollTo({top:0,behavior:'smooth'});updateLiveTransportUI(song,false)};
- $('#liveMetro').onclick=async()=>{loadSongTempo(song);state.liveSongId=song.id;
-   if(state.metro.running){state.metro.running=false;clearTimeout(state.metro.timer);state.metro.timer=null;lt.paused=true;updateLiveTransportUI(song,false);return;}
-   if(lt.phase==='done'){lt.phase='idle';lt.songBar=0;lt.scheduledDownbeats=0;lt.paused=false;}
-   try{const ctx=await ensureAudioReady();state.metro.running=true;state.metro.currentBeat=0;state.metro.nextNoteTime=ctx.currentTime+.08;lt.paused=false;if(lt.songBar===0)lt.phase='idle';else lt.phase='song';scheduler();updateLiveTransportUI(song,false)}catch(e){console.error(e);toast('No se pudo activar el click')}
+ $('#liveCountInSel').onchange=e=>{lt.countInBars=Math.max(0,Number(e.target.value)||0);if(!state.metro.running&&lt.songBar===0){lt.phase='idle';lt.plannedCountIn=0;lt.audibleCountIn=0;lt.plannedSongBars=0;lt.runToken++;updateLiveTransportUI(song,false)}};
+ const applyLiveBpm=v=>{lt.bpm=clampMetroBpm(v);state.metro.bpm=lt.bpm;const inp=$('#liveBpmInput');if(inp)inp.value=lt.bpm;toast(`${lt.bpm} BPM`)};
+ $('#liveBpmMinus').onclick=()=>applyLiveBpm(lt.bpm-1);
+ $('#liveBpmPlus').onclick=()=>applyLiveBpm(lt.bpm+1);
+ $('#liveBpmInput').onchange=e=>applyLiveBpm(e.target.value);
+ $('#liveBpmReset').onclick=()=>applyLiveBpm(song.bpm||100);
+ $('#liveResetTransport').onclick=()=>{state.metro.running=false;clearTimeout(state.metro.timer);state.metro.timer=null;lt.phase='idle';lt.songBar=0;lt.plannedCountIn=0;lt.audibleCountIn=0;lt.plannedSongBars=0;lt.paused=false;lt.runToken++;state.metro.currentBeat=0;document.querySelector('.live-guide')?.scrollTo({top:0,behavior:'smooth'});updateLiveTransportUI(song,false)};
+ $('#liveMetro').onclick=async()=>{state.liveSongId=song.id;
+   const m=state.metro;m.meter=song.meter||4;m.denominator=song.denominator||4;m.subdivision=song.subdivision||1;m.bpm=clampMetroBpm(lt.bpm||song.bpm||100);
+   if(m.running){m.running=false;clearTimeout(m.timer);m.timer=null;lt.paused=true;lt.runToken++;lt.plannedSongBars=lt.songBar;lt.plannedCountIn=Math.min(lt.countInBars,lt.audibleCountIn);updateLiveTransportUI(song,false);return;}
+   if(lt.phase==='done'){lt.phase='idle';lt.songBar=0;lt.plannedCountIn=0;lt.audibleCountIn=0;lt.plannedSongBars=0;lt.paused=false;}
+   try{const ctx=await ensureAudioReady();m.running=true;m.currentBeat=0;m.nextNoteTime=ctx.currentTime+.08;lt.paused=false;lt.runToken++;if(lt.songBar===0){lt.phase='idle';lt.plannedCountIn=0;lt.audibleCountIn=0;lt.plannedSongBars=0}else{lt.phase='song';lt.plannedSongBars=lt.songBar;lt.plannedCountIn=lt.countInBars;lt.audibleCountIn=lt.countInBars}scheduler();updateLiveTransportUI(song,false)}catch(e){console.error(e);toast('No se pudo activar el click')}
  };
  $('#wakeBtn').onclick=async()=>{try{if('wakeLock'in navigator){await navigator.wakeLock.request('screen');toast('Pantalla mantenida activa')}else toast('Este navegador no permite bloquear el apagado de pantalla')}catch{toast('No se pudo mantener la pantalla activa')}};
  $('#fullLiveBtn').onclick=()=>setLiveFull(true);

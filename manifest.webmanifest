@@ -1,8 +1,8 @@
 {
   "name": "DrumGuide - Guías para batería",
   "short_name": "DrumGuide",
-  "start_url": "/?appv=10.16.0",
-  "scope": "/",
+  "start_url": "./?appv=10.35.0",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f4f6f8",
   "theme_color": "#111827",
@@ -20,5 +20,5 @@
       "purpose": "any maskable"
     }
   ],
-  "id": "/"
+  "id": "./"
 }

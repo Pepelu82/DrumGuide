@@ -7,33 +7,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>DrumGuide</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=10.34.0" />
-  <link rel="icon" href="./icon.svg?v=10.34.0" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="./icon-192.png?v=10.34.0" />
-  <link rel="stylesheet" href="./styles.css?v=10.34.0" />
-
-<style id="dg-v1034-guion-layout">
-/* Guion vertical: zonas estables, máximo tamaño útil */
-.guion-vertical .section-card,.view-guion-vertical .section-card,.guionVertical .section-card,[data-view="guion-vertical"] .section-card{
-display:grid!important;grid-template-rows:auto auto minmax(0,1fr) auto!important;
-gap:clamp(6px,1vh,12px)!important;padding:clamp(10px,1.5vw,18px)!important;
-overflow:hidden!important;box-sizing:border-box!important}
-.guion-vertical .section-title,.view-guion-vertical .section-title,[data-view="guion-vertical"] .section-title{
-font-size:clamp(24px,4.2vw,48px)!important;line-height:1.02!important;margin:0!important;overflow-wrap:anywhere}
-.guion-vertical .groups,.guion-vertical .bar-groups,.view-guion-vertical .groups,[data-view="guion-vertical"] .groups{
-display:flex!important;flex-wrap:wrap!important;gap:clamp(5px,.8vw,10px)!important;align-items:center}
-.guion-vertical .pattern,.guion-vertical .pattern-grid,.view-guion-vertical .pattern,[data-view="guion-vertical"] .pattern-grid{
-min-height:0!important;overflow:hidden!important;width:100%!important}
-.guion-vertical .comment,.guion-vertical .comments,.guion-vertical .notes,.view-guion-vertical .comment,[data-view="guion-vertical"] .comments{
-position:static!important;margin:0!important;max-width:100%!important;font-size:clamp(18px,2.6vw,32px)!important;
-line-height:1.08!important;overflow-wrap:anywhere!important}
-.guion-vertical .pattern .subdivision,.guion-vertical .pattern .bar-number,.guion-vertical .pattern .beat-number,
-.guion-vertical .pattern .pattern-meta,.view-guion-vertical .pattern .subdivision,.view-guion-vertical .pattern .bar-number,
-[data-view="guion-vertical"] .pattern .subdivision,[data-view="guion-vertical"] .pattern .bar-number{display:none!important}
-.guion-vertical .pattern-row,.view-guion-vertical .pattern-row,[data-view="guion-vertical"] .pattern-row{
-min-height:clamp(30px,5.2vh,58px)!important;font-size:clamp(17px,2.4vw,30px)!important}
-</style>
-
+  <link rel="manifest" href="./manifest.webmanifest?v=10.35.0" />
+  <link rel="icon" href="./icon.svg?v=10.35.0" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icon-192.png?v=10.35.0" />
+  <link rel="stylesheet" href="./styles.css?v=10.35.0" />
 </head>
 <body>
   <div id="toast" class="toast" hidden></div>
@@ -46,8 +23,8 @@ min-height:clamp(30px,5.2vh,58px)!important;font-size:clamp(17px,2.4vw,30px)!imp
       <nav id="sideNav" class="nav"></nav>
       <div class="sidebar-foot">
         <div id="syncBadge" class="sync-badge">● Sincronizando…</div>
-        <div class="version-line"><span id="versionBadge">v10.34.0</span><span>Versión Neocities · actualización sin créditos de despliegue</span></div>
-        <a class="btn primary full" href="https://neocities.org/dashboard" target="_blank" rel="noopener">⬆ Actualizar en Neocities</a>
+        <div class="version-line"><span id="versionBadge">v10.35.0</span><span>Versión GitHub Pages · publicación gratuita</span></div>
+        <a class="btn primary full" href="https://github.com/Pepelu82/DrumGuide" target="_blank" rel="noopener">↗ Abrir proyecto en GitHub</a>
         <button class="btn ghost full" data-action="update">↻ Comprobar actualización</button>
         <button class="btn ghost full" data-action="backup">Crear copia de seguridad</button>
         <button class="btn ghost full" data-action="restore">Restaurar copia</button>
@@ -86,6 +63,6 @@ min-height:clamp(30px,5.2vh,58px)!important;font-size:clamp(17px,2.4vw,30px)!imp
     </form>
   </dialog>
 
-  <script src="./app.js?v=10.34.0"></script>
+  <script src="./app.js?v=10.35.0"></script>
 </body>
 </html>
