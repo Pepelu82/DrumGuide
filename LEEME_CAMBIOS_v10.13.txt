@@ -1,0 +1,11 @@
+DRUMGUIDE v10.13.0
+
+NOVEDAD: METRÓNOMO RÁPIDO EN CANCIONES
+- Cada canción muestra un botón de metrónomo con su BPM cargado.
+- Un toque inicia el click a la velocidad, compás y subdivisión de esa canción.
+- Otro toque lo apaga.
+- El metrónomo funciona de forma independiente del reproductor: encenderlo o apagarlo NO pausa, reinicia ni corta el audio/vídeo que esté reproduciéndose.
+- Si se pulsa el metrónomo de otra canción, el click cambia a los datos de esa canción sin tocar la reproducción multimedia.
+- El botón activo queda resaltado y muestra “Parar click”.
+
+Versión: 10.13.0

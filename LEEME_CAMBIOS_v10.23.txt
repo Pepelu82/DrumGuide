@@ -1,0 +1,9 @@
+DrumGuide v10.23.0
+
+- Base restaurada: v10.19 (Transcribir funcional).
+- No se usa la v10.22 como base.
+- Reproductor MP3: lectura compatible con almacenamiento v1 y v2.
+- Los nuevos MP3 se guardan como Blob directo (mecanismo estable anterior).
+- El archivo recién elegido se reproduce directamente desde la sesión y además queda guardado.
+- El reproductor fuerza load() y conserva Play/Pausa/posición normal.
+- Resto de funciones de v10.19 sin modificar.

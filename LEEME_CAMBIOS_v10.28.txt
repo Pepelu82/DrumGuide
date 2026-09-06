@@ -1,0 +1,6 @@
+DrumGuide v10.28.0
+
+- Setlists: se mantiene añadir una canción y se añade selección múltiple con añadir todas las seleccionadas de una vez.
+- Directo: primera fila = nombre de parte + cápsulas de compases; segunda = comentarios; tercera = patrón; debajo = patrón gráfico de batería.
+- Directo y Transcribir: colores automáticos consistentes por familia de parte (intro, estrofa/verso, preestribillo, estribillo, post-estribillo, puente/interludio, solo, outro/final y otras).
+- Se mantiene el motor MP3 Web Audio, YouTube, metrónomo y BPM guardable de v10.27.

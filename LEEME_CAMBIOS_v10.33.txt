@@ -1,0 +1,15 @@
+DrumGuide v10.33.0 — Guion vertical automático
+
+Novedades:
+- Cuenta de entrada seleccionable antes de comenzar: sin entrada, 1, 2, 4 u 8 compases.
+- Cuenta de entrada grande en pantalla; no consume compases de la canción.
+- Contador fijo: compás actual / compases totales.
+- Contador fijo de compases restantes.
+- Indicador de sección actual y compás dentro de esa sección.
+- Vista 7 · Guion vertical con autoscroll sincronizado con el click.
+- La sección activa se resalta automáticamente y queda situada en una zona cómoda de lectura.
+- Pausa y continuación conservando el compás actual.
+- Botón “Inicio” para reiniciar la canción y volver a ejecutar la cuenta de entrada.
+- Al terminar el último compás, el click se detiene y muestra FIN.
+
+Base: v10.32.0 (ocho vistas de Directo), conservando las funciones anteriores.

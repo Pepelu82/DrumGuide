@@ -1,0 +1,9 @@
+DrumGuide v10.15.0
+
+CORRECCIÓN DEL REPRODUCTOR EN TRANSCRIBIR
+- Reproductor MP3/vídeo reforzado para Neocities y navegadores Android.
+- Fuerza la carga del archivo y normaliza el tipo MIME (incluido MP3 audio/mpeg).
+- Muestra estado de carga y duración detectada.
+- El botón de reproducción informa si el navegador rechaza el inicio.
+- Si el archivo local se perdió o quedó ilegible, aparece “Recargar archivo” para volver a seleccionar el MP3 sin perder la canción, las secciones ni la asociación.
+- El metrónomo sigue siendo totalmente independiente del reproductor.

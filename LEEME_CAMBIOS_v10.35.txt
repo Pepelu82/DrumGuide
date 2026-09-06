@@ -1,0 +1,10 @@
+DrumGuide v10.35.0
+
+- GitHub Pages como plataforma principal; eliminadas referencias de Neocities.
+- Versionado coherente 10.35.0 en index, app, manifest y service worker.
+- PWA adaptada a /DrumGuide/ mediante rutas relativas.
+- Guion vertical con estructura fija: título/compases arriba, patrón instrumental y comentarios en zonas estables.
+- En Guion vertical se ocultan metadatos del patrón y texto descriptivo; se priorizan las líneas/grillas de instrumentos.
+- Sincronización corregida: la pantalla avanza al golpe REAL del primer tiempo de cada compás, no cuando el audio se programa por adelantado.
+- Cuenta de entrada independiente y visible; no consume compases de la canción.
+- BPM de Directo editable con - / + / valor numérico / reset al BPM guardado. Cambiar BPM durante la reproducción mantiene el compás actual y cambia el tempo desde ese momento.

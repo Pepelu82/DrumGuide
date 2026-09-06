@@ -1,0 +1,7 @@
+DrumGuide v10.26.0
+
+- Reproductor MP3: barra de posición, Play, Pausa, Stop, -5 s, +5 s y velocidad en una sola línea compacta.
+- Metrónomo de transcripción: BPM editable por canción.
+- El BPM del metrónomo se guarda automáticamente y se conserva al volver a abrir la canción.
+- El botón ↺ recupera el BPM original de la ficha y también lo guarda como nuevo BPM del metrónomo.
+- Se mantiene intacto el motor MP3 Web Audio que funciona en v10.25.

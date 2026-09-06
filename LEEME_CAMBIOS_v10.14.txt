@@ -1,0 +1,10 @@
+DrumGuide v10.14.0
+
+CAMBIO PRINCIPAL
+- El botón de metrónomo se ha eliminado del listado general de Canciones.
+- Ahora aparece dentro de la pantalla Transcribir canción, junto al título y BPM del tema.
+- Al activarlo carga automáticamente el BPM, compás y subdivisión de la canción.
+- El metrónomo se puede encender y apagar sin pausar, reiniciar ni cortar el audio/vídeo que esté reproduciéndose.
+- Cuando está activo el botón cambia a 'Parar metrónomo'.
+
+Neocities: descomprime el ZIP y sustituye los archivos del sitio.

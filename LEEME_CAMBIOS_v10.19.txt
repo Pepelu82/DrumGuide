@@ -1,0 +1,14 @@
+DrumGuide v10.19.0
+
+CORRECCIÓN PRIORITARIA DEL REPRODUCTOR MP3
+
+- El reproductor local queda independiente del metrónomo y del editor.
+- Botones separados: Play, Pausa y Stop.
+- Play inicia/reanuda el MP3 cargado.
+- Pausa conserva la posición.
+- Stop detiene y vuelve al segundo 0.
+- Se fuerza audio no silenciado al pulsar Play.
+- El estado visual indica Reproduciendo / En pausa / Finalizada.
+- Se mantiene el reproductor nativo como control adicional.
+
+Versión: 10.19.0

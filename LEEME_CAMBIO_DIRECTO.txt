@@ -1,0 +1,6 @@
+MODO DIRECTO · v10.9.0
+
+- El nombre de la parte (por ejemplo, Estribillo 1) se muestra siempre en una sola fila.
+- Los compases se muestran en una fila independiente: por ejemplo, 8 + 8 compases.
+- Los números de compases tienen un tamaño claramente mayor para facilitar la lectura desde la batería.
+- El ajuste automático de tamaño se mantiene para aprovechar el espacio disponible.

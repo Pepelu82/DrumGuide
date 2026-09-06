@@ -1,0 +1,9 @@
+ORDENAR PARTES Y PATRONES · v10.9.0
+
+1. Pulsa Mover en la sección que quieres cambiar de sitio.
+2. La sección seleccionada queda resaltada en gris claro.
+3. Pulsa Colocar aquí en la posición de destino o toca directamente esa tarjeta.
+4. La sección se mueve inmediatamente a esa posición.
+5. Pulsa de nuevo la sección seleccionada para cancelar el movimiento.
+
+El cambio puede deshacerse y rehacerse.

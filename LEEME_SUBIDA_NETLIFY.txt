@@ -1,0 +1,7 @@
+DRUMGUIDE v10.8.0 — SUBIDA A NETLIFY
+
+1. Descomprime este ZIP.
+2. En Netlify, despliega la carpeta completa del contenido.
+3. Espera a que termine el deploy.
+4. Abre DrumGuide y entra en Transcribir canción: el título debe indicar v10.8.0.
+5. Si la PWA instalada sigue antigua, cierra y vuelve a abrir la app después del deploy.

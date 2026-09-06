@@ -1,0 +1,10 @@
+VISTA DIRECTO
+1. Nombre de parte/sección en la primera línea.
+2. Compases en cápsulas separadas en la siguiente línea, sin texto «compases».
+3. Comentarios/indicaciones a continuación.
+4. Patrón/groove y patrón visual después de los comentarios.
+5. Tipografía adaptativa al espacio y al contenido.
+
+TRANSCRIBIR
+- Duplicar una sección la coloca siempre como última sección.
+- Se conserva el sistema de mover: seleccionar sección -> tocar destino.

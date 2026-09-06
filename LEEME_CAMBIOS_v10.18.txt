@@ -1,0 +1,14 @@
+DrumGuide v10.18.0
+
+CORRECCIÓN REPRODUCTOR LOCAL
+- Se cambia el almacenamiento de audio/vídeo a IndexedDB v2 guardando ArrayBuffer, más compatible con Chrome/Samsung/Android.
+- Al reproducir se reconstruye el Blob con MIME correcto.
+- Si el navegador falla con blob: URL, DrumGuide reintenta automáticamente mediante data URL antes de pedir revinculación.
+- Se mantienen los controles nativos y los botones Inicio / -5 s / Play-Pausa / +5 s / velocidad.
+- Se mantiene la asociación automática de archivos por título de canción.
+- Se mantienen YouTube y metrónomo independiente.
+
+IMPORTANTE
+Los archivos locales guardados con el sistema anterior no se migran automáticamente porque estaban en otra base local. Vuelve a cargar o revincular cada archivo una vez; desde v10.18 queda almacenado con el sistema nuevo.
+
+También se unifican todos los identificadores de versión/cache a v10.18.0 para evitar que la PWA mezcle JS/CSS de versiones anteriores.

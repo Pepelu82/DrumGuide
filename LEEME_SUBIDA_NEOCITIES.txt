@@ -1,0 +1,19 @@
+DRUMGUIDE v10.12.0 - NEOCITIES
+
+NO subas el archivo ZIP a Neocities.
+1. Descomprime el ZIP en tu dispositivo.
+2. En Neocities > Dashboard pulsa Upload.
+3. Sube estos archivos a la raíz del sitio:
+   index.html
+   app.js
+   styles.css
+   sw.js
+   manifest.webmanifest
+   icon.svg
+   icon-192.png
+   icon-512.png
+   404.html
+4. Si pregunta si quieres reemplazar index.html, acepta.
+5. Abre https://drumguide-lab.neocities.org y recarga.
+
+Los archivos LEEME y netlify.toml no son necesarios en Neocities.

@@ -1,0 +1,16 @@
+DRUMGUIDE v10.17.0
+
+OBJETIVO DE ESTA VERSIÓN
+1. Corregir persistencia/reproducción local de MP3 y vídeo.
+2. Hacer operativa la carga de YouTube desde Transcribir.
+3. Automatizar la asociación canción ↔ multimedia por título.
+
+FLUJO NUEVO
+- Puedes cargar varios MP3/vídeos de una vez.
+- Si existe una canción con título equivalente, el archivo se asocia automáticamente.
+- Si después pegas un listado masivo de canciones, cada nueva ficha busca el archivo equivalente que ya exista en Biblioteca multimedia.
+- Al abrir Transcribir, la app hace una tercera comprobación automática si la canción todavía no tiene medio asociado.
+- Resultado esperado: abrir “A contraluz” → ver su MP3 ya seleccionado → pulsar Play.
+
+NOTA
+Los archivos que en una versión anterior quedaron registrados solo como nombre pero sin binario real en IndexedDB necesitan seleccionarse una última vez con “Volver a vincular”. A partir de v10.17 se guardan como Blob binario para evitar ese problema en nuevas cargas.

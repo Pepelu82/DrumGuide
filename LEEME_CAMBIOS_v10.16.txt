@@ -1,0 +1,19 @@
+DrumGuide v10.16.0 — REVISIÓN DE ESTABILIDAD
+
+DIRECTO
+- Todas las setlists guardadas aparecen en Directo como accesos de lanzamiento.
+- Al guardar una setlist queda seleccionada como setlist activa.
+- Se mantiene el selector de setlist y canción, anterior/siguiente, vista completa, click y diseño adaptativo.
+
+REPRODUCTOR
+- MP3 y vídeo local se cargan mediante URL de objeto aplicada directamente al elemento audio/video.
+- Se detecta MIME por archivo/extensión.
+- Se informa claramente si un archivo local antiguo necesita volver a vincularse tras cambiar de dominio/dispositivo.
+- Controles: inicio, -5 s, play/pausa, +5 s y velocidad.
+- YouTube conserva sus controles independientes.
+
+METRÓNOMO EN TRANSCRIBIR
+- Eliminado de la cabecera superior.
+- Nuevo bloque justo debajo del reproductor.
+- BPM editable, botones -/+, recuperar BPM original, encender/apagar.
+- No pausa, reinicia ni sustituye el reproductor multimedia.

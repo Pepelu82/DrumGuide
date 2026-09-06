@@ -1,0 +1,7 @@
+DrumGuide v10.24.0
+
+- No modifica canciones, secciones, setlists, directo, YouTube ni metrónomo.
+- Sustituye únicamente la reproducción de audio local MP3 por Web Audio.
+- El MP3 se decodifica directamente desde sus bytes, sin depender del elemento <audio> que devolvía 0:00 en Android.
+- Play, Pausa, Stop, -5 s, +5 s, barra de posición y velocidad.
+- Muestra duración obtenida del propio MP3 decodificado.

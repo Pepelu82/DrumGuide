@@ -1,0 +1,5 @@
+DrumGuide v10.25.0
+
+- Restauradas exclusivamente las funciones del modal Transcribir eliminadas accidentalmente en v10.24.
+- Se mantiene intacto el motor MP3 Web Audio de v10.24.
+- Sin otros cambios funcionales.
